@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
   return (
     <View>
-      <Text>This is a message from Frontend</Text>
+      <Text>This is a message from Frontend!!!</Text>
       <Text>{message}</Text>
     </View>
   );
