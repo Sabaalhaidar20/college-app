@@ -37,3 +37,9 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+#backend
+venv/
+__pycache__/
+firebase-adminkey.json
+*.pyc 
