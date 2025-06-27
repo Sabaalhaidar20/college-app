@@ -1,3 +1,4 @@
+
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
@@ -47,7 +48,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const [segment] = segments;
-    const inTabs = segment.includes('(tabs)')
+    const inTabs = segment === '(tabs)'
 
     if (!loading && !user && inTabs) {
       router.replace('/');
