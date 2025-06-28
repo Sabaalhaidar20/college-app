@@ -121,3 +121,35 @@ def get_interests():
 
     except Exception as e:
         return jsonify({"error":str(e)}),500
+    
+
+#Update/add interests
+@routes_bp.route("/api/profiles/<uid>/interests",methods=["PATCH"])
+def update_interests(uid):
+
+    data = request.json
+
+    if "interests" not in data:                                     #check if interests were passed
+        return jsonify({"error": "Missing field: interests"}), 400
+    
+    user_ref = db.collection("users").document(uid)                 #create reference of users data
+
+    user_ref.update({"interests": data["interests"]})               #update interest field in firebase
+
+    return jsonify({"message":"User interests have been updated"}), 200
+
+
+
+#Update profile (bio and name for now)  UPDATE AND MAKE SAFER LATER
+@routes_bp.route("/api/profiles/<uid>", methods=["PATCH"])
+def update_profile(uid):
+
+    data = request.json
+    if "name" not in data and "bio" not in data:
+        return jsonify({"error":"Missing fields: name or bio"}), 400
+    
+    user_ref = db.collection("users").document(uid)
+    user_ref.update(data)
+
+    return jsonify({"message":"Profile successfully updated"}),200
+
