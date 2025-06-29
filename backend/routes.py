@@ -28,7 +28,7 @@ def test():
         return jsonify({"error": str(e)}), 400
 
 
-# NEW Register route
+# NEW REGISTER route
 @routes_bp.route("/auth/register", methods=["POST"])
 def register():
     
@@ -58,11 +58,56 @@ def register():
         "password": password        #MAKE SECURE
     })
 
-    session["uid"] = curr_user.id 
+    session["user_id"] = curr_user.id 
 
     return jsonify({"message":"Registered user", "user":{"id": curr_user.id}}), 200
 
 
+# NEW LOGIN route
+@routes_bp.route("/auth/login", methods=["POST"])
+def login():
+
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({"error":"Email and password required"}), 400
+    
+    users_ref = db.collection("users")
+
+    search = users_ref.where("email","==",email).get()
+
+    if not search:
+        return jsonify({"error":"user does not exist"}), 400
+
+    curr_user_doc = search[0]
+    curr_user = curr_user_doc.to_dict()
+
+    if password != curr_user["password"]:
+        return jsonify({"error":"incorrect password"}), 400
+    
+    session["user_id"] = curr_user_doc.id
+
+    return jsonify({"message":"login successful", "user":{"id":curr_user_doc.id}}), 200
+
+
+#Current User 
+@routes_bp.route("/auth/current_user")
+def current_user():
+
+    if "user_id" not in session:
+        return jsonify({"error":"user not logged in"}), 400
+    
+    return jsonify({"user":{"id": session["user_id"]}}),200
+
+#Lougout 
+@routes_bp.route("/auth/logout", methods=["POST"])
+def logout():
+    
+    session.clear()
+
+    return jsonify({"message": "User logged out"}), 200
 
 
 
@@ -114,7 +159,7 @@ def register_user():
 
 #LOGIN route, Frontend handles actual login via firebase auth, this route simply verifies the id token and checks if user exists
 @routes_bp.route("/api/profiles",methods = ["GET"])
-def login():
+def user_login():
     
     #get and verify id token
     auth_token = request.headers.get("Authorization")       #request auth header for firebase id token
@@ -165,15 +210,18 @@ def get_interests():
     
 
 #Update/add interests
-@routes_bp.route("/api/profiles/<uid>/interests",methods=["PATCH"])
-def update_interests(uid):
+@routes_bp.route("/api/profiles/<user_id>/interests",methods=["PATCH"])
+def update_interests(user_id):
+
+    if "user_id" not in session or session["user_id"] != user_id:
+        return jsonify({"error":"Unauthorized"}), 400
 
     data = request.json
 
     if "interests" not in data:                                     #check if interests were passed
         return jsonify({"error": "Missing field: interests"}), 400
     
-    user_ref = db.collection("users").document(uid)                 #create reference of users data
+    user_ref = db.collection("users").document(user_id)                 #create reference of users data
 
     user_ref.update({"interests": data["interests"]})               #update interest field in firebase
 
@@ -182,14 +230,17 @@ def update_interests(uid):
 
 
 #Update profile (bio and name for now)  UPDATE AND MAKE SAFER LATER
-@routes_bp.route("/api/profiles/<uid>", methods=["PATCH"])
-def update_profile(uid):
+@routes_bp.route("/api/profiles/<user_id>", methods=["PATCH"])
+def update_profile(user_id):
+
+    if "user_id" not in session or session["user_id"] != user_id:
+        return jsonify({"error":"Unauthorized"}), 400
 
     data = request.json
     if "name" not in data and "bio" not in data:
         return jsonify({"error":"Missing fields: name or bio"}), 400
     
-    user_ref = db.collection("users").document(uid)
+    user_ref = db.collection("users").document(user_id)
     user_ref.update(data)
 
     return jsonify({"message":"Profile successfully updated"}),200
