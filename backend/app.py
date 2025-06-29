@@ -2,9 +2,14 @@ from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS
 from firebase_config import db
 from routes import routes_bp
+#from dotenv import load_dotenv
+
+#load_dotenv()
 
 app = Flask(__name__)
-CORS(app) 
+app.secret_key = "the_secret_key"           #UPDATE SECRET KEY
+
+CORS(app, supports_credentials=True) 
 
 app.register_blueprint(routes_bp)
 
