@@ -1,6 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from firebase_config import db
 from firebase_admin import auth
+from google.cloud.firestore_v1.base_query import FieldFilter
+
 
 routes_bp = Blueprint("routes",__name__)
 
@@ -8,6 +10,7 @@ routes_bp = Blueprint("routes",__name__)
 @routes_bp.route("/hello")
 def hello():
     return jsonify(message="this is a message from backend!")
+
 
 #create user test
 @routes_bp.route("/api/test", methods=["POST"])
@@ -23,6 +26,42 @@ def test():
         return jsonify({"message": "Created Test user"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+# NEW Register route
+@routes_bp.route("/auth/register", methods=["POST"])
+def register():
+    
+    data = request.json
+
+    firstName = data.get("firstName")
+    lastName = data.get("lastName")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not firstName or not lastName or not email or not password:
+        return jsonify({"error":"Missing field (Required: firstName, lastName, email, password)"}), 400
+    
+    user_ref = db.collection("users")
+
+    search = user_ref.where(filter = FieldFilter("email","==",email)).get()
+
+    if search:
+        return jsonify({"error":"User already exists"}), 400
+    
+    curr_user = user_ref.document()
+    curr_user.set({
+        "id": curr_user.id,
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+        "password": password        #MAKE SECURE
+    })
+
+    session["uid"] = curr_user.id 
+
+    return jsonify({"message":"Registered user", "user":{"id": curr_user.id}}), 200
+
 
 
 
@@ -55,14 +94,16 @@ def register_user():
 
     #get data to create profile
     data = request.json                                     #request user data
-    name = data.get('name')
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
     email = data.get('email')
 
-    if not name or not email:
+    if not firstname or not lastname or not email:
         return jsonify({"error": "Name and Email required"}), 400
     
     user_ref.set({                                            #set the users name and email
-        "name": name,
+        "firstname": firstname,
+        "lastname": lastname,
         "email": email
     })
 
