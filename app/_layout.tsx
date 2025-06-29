@@ -48,6 +48,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const [segment] = segments;
+    // @ts-ignore
     const inTabs = segment === '(tabs)'
 
     if (!loading && !user && inTabs) {

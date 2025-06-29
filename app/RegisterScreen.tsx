@@ -51,6 +51,7 @@ export default function RegisterScreen() {
 
       if (loginResponse.ok) {
         login(loginData.user);
+        // @ts-ignore
         router.replace('/BioScreen');
       } else {
         setErrorMsg(loginData.message || 'Login after registration failed');

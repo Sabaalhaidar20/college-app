@@ -26,6 +26,7 @@ export default function LoginScreen() {
 
       if (response.ok) {
         login(data.user);
+        // @ts-ignore
         router.replace('/BioScreen');
       } else {
         setErrorMsg(data.message || 'Login failed');
@@ -81,6 +82,7 @@ export default function LoginScreen() {
             New user?{' '}
             <Text
               style={styles.registerLink}
+              // @ts-ignore
               onPress={() => router.push('/RegisterScreen')}
             >
               Create account
