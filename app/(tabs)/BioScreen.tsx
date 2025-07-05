@@ -1,14 +1,23 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useAuth } from '../_layout';
+import styles from '../styles';
 
 export default function BioScreen() {
   const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState('');
   const [major, setMajor] = useState('');
@@ -19,10 +28,10 @@ export default function BioScreen() {
   const [hobbyInput, setHobbyInput] = useState('');
 
   useEffect(() => {
-    if (authLoading) return; 
+    if (authLoading) return;
 
     if (!user) {
-      router.replace('/'); 
+      router.replace('/');
       return;
     }
 
@@ -34,17 +43,13 @@ export default function BioScreen() {
         if (!res.ok) throw new Error('Failed to load bio');
         const data = await res.json();
 
-        setName(data.first_name + ' ' + data.last_name)
+        setName(data.first_name + ' ' + data.last_name);
         setMajor(data.major || '');
         setGradYear(data.graduation_year ? String(data.graduation_year) : '');
         setInterests(data.interests || []);
         setHobbies(data.hobbies || []);
       } catch (err) {
-        if (err instanceof Error) {
-          Alert.alert('Error', err.message);
-        } else {
-          Alert.alert('Error', 'Unexpected error loading bio.');
-        }
+        Alert.alert('Error', err instanceof Error ? err.message : 'Unexpected error loading bio.');
       } finally {
         setLoading(false);
       }
@@ -54,9 +59,7 @@ export default function BioScreen() {
   }, [authLoading, user]);
 
   const toggleEdit = async () => {
-    if (isEditing) {
-      await handleSubmit();
-    }
+    if (isEditing) await handleSubmit();
     setIsEditing(!isEditing);
   };
 
@@ -103,95 +106,117 @@ export default function BioScreen() {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save bio');
-      }
-
+      if (!response.ok) throw new Error('Failed to save bio');
       Alert.alert('Success', 'Your bio was saved!');
     } catch (err) {
-      if (err instanceof Error) {
-        Alert.alert('Error', err.message);
-      } else {
-        Alert.alert('Error', 'An unexpected error occurred.');
-      }
+      Alert.alert('Error', err instanceof Error ? err.message : 'An unexpected error occurred.');
     }
   };
 
   if (loading || authLoading) {
-    return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center' }} />;
+    return (
+      <View style={styles.outerContainer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Bio</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.screenTitle}>{name}</Text>
         <TouchableOpacity onPress={toggleEdit}>
-          <Text style={{ color: 'blue' }}>{isEditing ? 'Save' : 'Edit'}</Text>
+          <Text style={styles.editButtonText}>{isEditing ? 'Save' : 'Edit'}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text>Name</Text>
-      <Text>{name}</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Major:</Text>
+        {isEditing ? (
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            value={major}
+            onChangeText={setMajor}
+            placeholder="Enter major"
+          />
+        ) : (
+          <Text style={styles.staticText}>{major || '-'}</Text>
+        )}
+      </View>
 
-      <Text>Major</Text>
-      <TextInput value={major} onChangeText={setMajor} editable={isEditing} />
+      <View style={styles.row}>
+        <Text style={styles.label}>Graduation Year:</Text>
+        {isEditing ? (
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            value={gradYear}
+            onChangeText={setGradYear}
+            keyboardType="numeric"
+            maxLength={4}
+            placeholder="YYYY"
+          />
+        ) : (
+          <Text style={styles.staticText}>{gradYear || '-'}</Text>
+        )}
+      </View>
 
-      <Text>Graduation Year</Text>
-      <TextInput
-        value={gradYear}
-        onChangeText={setGradYear}
-        keyboardType="numeric"
-        maxLength={4}
-        editable={isEditing}
-      />
-
-      <Text>Interests</Text>
-      {interests.map((item, idx) => (
-        <View key={idx} style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text>{item}</Text>
-          {isEditing && (
-            <TouchableOpacity onPress={() => removeItem('interest', idx)}>
-              <Text style={{ marginLeft: 8, color: 'red' }}>Remove</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      ))}
+      <Text style={styles.sectionTitle}>Interests</Text>
+      <View style={styles.tagContainer}>
+        {interests.map((item, idx) => (
+          <View key={idx} style={styles.tag}>
+            <Text>{item}</Text>
+            {isEditing && (
+              <TouchableOpacity onPress={() => removeItem('interest', idx)}>
+                <Text style={styles.removeTagText}>×</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))}
+      </View>
       {isEditing && (
-        <View>
+        <>
           <TextInput
             placeholder="Add interest"
             value={interestInput}
             onChangeText={setInterestInput}
+            style={styles.input}
           />
-          <Button title="Add" onPress={() => addItem('interest')} />
-        </View>
+          <TouchableOpacity style={styles.loginButton} onPress={() => addItem('interest')}>
+            <Text style={styles.loginButtonText}>Add Interest</Text>
+          </TouchableOpacity>
+        </>
       )}
 
-      <Text>Hobbies</Text>
-      {hobbies.map((item, idx) => (
-        <View key={idx} style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text>{item}</Text>
-          {isEditing && (
-            <TouchableOpacity onPress={() => removeItem('hobby', idx)}>
-              <Text style={{ marginLeft: 8, color: 'red' }}>Remove</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      ))}
+      <Text style={styles.sectionTitle}>Hobbies</Text>
+      <View style={styles.tagContainer}>
+        {hobbies.map((item, idx) => (
+          <View key={idx} style={styles.tag}>
+            <Text>{item}</Text>
+            {isEditing && (
+              <TouchableOpacity onPress={() => removeItem('hobby', idx)}>
+                <Text style={styles.removeTagText}>×</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))}
+      </View>
       {isEditing && (
-        <View>
+        <>
           <TextInput
             placeholder="Add hobby"
             value={hobbyInput}
             onChangeText={setHobbyInput}
+            style={styles.input}
           />
-          <Button title="Add" onPress={() => addItem('hobby')} />
-        </View>
+          <TouchableOpacity style={styles.loginButton} onPress={() => addItem('hobby')}>
+            <Text style={styles.loginButtonText}>Add Hobby</Text>
+          </TouchableOpacity>
+        </>
       )}
 
-      <View style={{ marginTop: 40 }}>
-        <Button title="Logout" onPress={handleLogout} />
-      </View>
+      <TouchableOpacity style={[styles.loginButton, { marginTop: 30 }]} onPress={handleLogout}>
+        <Text style={styles.loginButtonText}>Logout</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
