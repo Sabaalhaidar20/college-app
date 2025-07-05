@@ -5,7 +5,7 @@ export default function TabsLayout() {
     <Tabs>
       <Tabs.Screen name="SearchScreen" options={{ title: 'Search' }} />
       <Tabs.Screen name="MessagesScreen" options={{ title: 'Messages' }} />
-      <Tabs.Screen name="BioScreen" options={{ title: 'Bio' }} />
+      <Tabs.Screen name="BioScreen" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }
