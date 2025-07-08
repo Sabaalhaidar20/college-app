@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, session
 from firebase_config import db
 from firebase_admin import auth
 from google.cloud.firestore_v1.base_query import FieldFilter
-from app import bcrypt
+from extensions import bcrypt
 
 
 routes_bp = Blueprint("routes",__name__)
@@ -120,7 +120,7 @@ def logout():
 
 
 
-#register/create user
+#OLD register/create user
 @routes_bp.route("/api/profiles", methods = ["POST"])
 def register_user():
 
@@ -170,7 +170,7 @@ def register_user():
 
 
 
-#LOGIN route, Frontend handles actual login via firebase auth, this route simply verifies the id token and checks if user exists
+#OLD login route, Frontend handles actual login via firebase auth, this route simply verifies the id token and checks if user exists
 @routes_bp.route("/api/profiles",methods = ["GET"])
 def user_login():
     
@@ -258,3 +258,29 @@ def update_profile(user_id):
 
     return jsonify({"message":"Profile successfully updated"}),200
 
+#Get profile 
+@routes_bp.route("/api/profiles/<user_id>", methods = ["GET"])
+def get_profile(user_id):
+
+    try:
+        user_ref = db.collection("users").document(user_id).get()           #create a reference to the user
+
+        if not user_ref.exists():                                            #check if the user exists
+            return jsonify({"error": "User not found"}), 404
+        
+        data = user_ref.to_dict()                                           #convert the users info into python dictionary
+
+        profile = {                                                         #create a dictionary made up of the users data in firestore
+            "firstName": data.get("firstName"),
+            "lastName" : data.get("lastName"),
+            "email": data.get("email"),
+            "bio": data.get("bio", ""),                                       #return empty string if no bio
+            "interests": data.get("interests", [])                            #return empty list if no interests
+        }
+
+        return jsonify(profile), 200                                        #return the users data
+
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
