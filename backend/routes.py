@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, session
 from firebase_config import db
 from firebase_admin import auth
 from google.cloud.firestore_v1.base_query import FieldFilter
+from app import bcrypt
 
 
 routes_bp = Blueprint("routes",__name__)
@@ -32,30 +33,36 @@ def test():
 @routes_bp.route("/auth/register", methods=["POST"])
 def register():
     
-    data = request.json
+    data = request.json                                                                     #get data
 
     firstName = data.get("firstName")
     lastName = data.get("lastName")
     email = data.get("email")
     password = data.get("password")
 
-    if not firstName or not lastName or not email or not password:
+    if not firstName or not lastName or not email or not password:                             #ensure user sends first name, last name, email and a password
         return jsonify({"error":"Missing field (Required: firstName, lastName, email, password)"}), 400
     
-    user_ref = db.collection("users")
+    if not (email.endswith("@my.unt.edu") or email.endswith("@unt.edu")):                       #check if user entered UNT email
+        return jsonify ({"error":"Email must be a UNT email (@my.unt.edu or @unt.edu)" }), 400
 
-    search = user_ref.where(filter = FieldFilter("email","==",email)).get()
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')               #hash password using bcrypt
 
-    if search:
+    user_ref = db.collection("users")                                                       #create a reference to the current user to later search through firestore
+
+    search = user_ref.where(filter = FieldFilter("email","==",email)).get()                 #search through users looking for the specified email
+
+    if search:                                                                              #if email is found, email is already linked to an existing user
         return jsonify({"error":"User already exists"}), 400
     
-    curr_user = user_ref.document()
+    curr_user = user_ref.document()                                                         #Create the user and store in database
     curr_user.set({
         "id": curr_user.id,
         "firstName": firstName,
         "lastName": lastName,
         "email": email,
-        "password": password        #MAKE SECURE
+ #      "password": password        #MAKE SECURE
+        "password": hashed_password
     })
 
     session["user_id"] = curr_user.id 
@@ -67,25 +74,27 @@ def register():
 @routes_bp.route("/auth/login", methods=["POST"])
 def login():
 
-    data = request.json
+    data = request.json                                                                 #get data
     email = data.get("email")
     password = data.get("password")
 
-    if not email or not password:
+    if not email or not password:                                                       #ensure email and password are passed
         return jsonify({"error":"Email and password required"}), 400
     
     users_ref = db.collection("users")
 
-    search = users_ref.where("email","==",email).get()
+    search = users_ref.where("email","==",email).get()                                  #search through users in database using the email that was passed
 
     if not search:
         return jsonify({"error":"user does not exist"}), 400
 
-    curr_user_doc = search[0]
-    curr_user = curr_user_doc.to_dict()
+    curr_user_doc = search[0]                                                           #get the 1st result of the search (user was found)
+    curr_user = curr_user_doc.to_dict()                                                 #turn the found user and their data into a python dictionary    
 
-    if password != curr_user["password"]:
-        return jsonify({"error":"incorrect password"}), 400
+#    if password != curr_user["password"]:
+ #       return jsonify({"error":"incorrect password"}), 400
+    if not bcrypt.check_password_hash(curr_user["password"], password):             #check encypted password and make sure user entered correct password
+        return jsonify({"error":"Incorrect password"}), 400
     
     session["user_id"] = curr_user_doc.id
 
@@ -105,7 +114,7 @@ def current_user():
 @routes_bp.route("/auth/logout", methods=["POST"])
 def logout():
     
-    session.clear()
+    session.clear()                                                                 #clear the current session, user no longer logged in
 
     return jsonify({"message": "User logged out"}), 200
 
@@ -145,6 +154,10 @@ def register_user():
 
     if not firstname or not lastname or not email:
         return jsonify({"error": "Name and Email required"}), 400
+    
+    if not (email.endswith("@my.unt.edu") or email.endswith("@unt.edu")):
+        return jsonify ({"error":"Email must be a UNT email (@my.unt.edu or @unt.edu)" }), 400
+
     
     user_ref.set({                                            #set the users name and email
         "firstname": firstname,
