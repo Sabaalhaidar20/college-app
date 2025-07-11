@@ -51,26 +51,50 @@ export default function SearchScreen() {
       <Text style={styles.screenTitle}>Search Users</Text>
 
       {users.map((u, idx) => (
-        <View key={idx} style={styles.searchCard}>
+        <View
+          key={idx}
+          style={[
+            styles.searchCard,
+            {
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            },
+          ]}
+        >
           <Text style={styles.searchUserText} numberOfLines={2} ellipsizeMode="tail">
             {u.first_name} {u.last_name} | {u.graduation_year || '-'} | {u.major || '-'} |{' '}
             {(u.interests || []).join(', ') || '-'} | {(u.hobbies || []).join(', ') || '-'}
           </Text>
 
-          <TouchableOpacity
-            style={styles.searchMessageButton}
-            onPress={() =>
-              router.push({
-                pathname: '../MessageScreen',
-                params: {
-                  userId: u.id,
-                  userName: `${u.first_name} ${u.last_name}`,
-                },
-              })
-            }
-          >
-            <Text style={styles.searchMessageButtonText}>Message</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity
+              style={[styles.searchMessageButton, { marginRight: 10 }]}
+              onPress={() =>
+                router.push({
+                  pathname: '../ViewBioScreen',
+                  params: { userId: u.id.toString() },
+                })
+              }
+            >
+              <Text style={styles.searchMessageButtonText}>View Bio</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.searchMessageButton}
+              onPress={() =>
+                router.push({
+                  pathname: '../MessageScreen',
+                  params: {
+                    userId: u.id,
+                    userName: `${u.first_name} ${u.last_name}`,
+                  },
+                })
+              }
+            >
+              <Text style={styles.searchMessageButtonText}>Message</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ))}
     </ScrollView>

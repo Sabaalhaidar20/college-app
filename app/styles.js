@@ -173,7 +173,180 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 14,
-  }
+  },
+  conversationCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  conversationTextWrapper: {
+    flex: 1,
+  },
+  conversationName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  conversationMessage: {
+    color: '#555',
+    marginTop: 2,
+  },
+  conversationTimestamp: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  blueDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#007AFF',
+    marginLeft: 8,
+  },
+  scrollContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  outerContainerMsg: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  headerMsg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    paddingTop: 50,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  backButtonMsg: {
+    padding: 8,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    width: 36,
+    height: 36,
+    backgroundColor: '#228B22', // green
+  },
+  backButtonTextMsg: {
+    color: 'white',
+    fontSize: 22,
+    lineHeight: 22,
+  },
+  headerTitleMsg: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    flexShrink: 1,
+  },
+  messagesScrollViewMsg: {
+    flex: 1,
+  },
+  messagesContentContainerMsg: {
+    padding: 12,
+    paddingBottom: 20,
+  },
+  messageBubbleMineMsg: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#228B22', // green bubble for your messages
+    borderRadius: 18,
+    padding: 12,
+    marginVertical: 6,
+    maxWidth: '75%',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  messageBubbleOtherMsg: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E5E5EA',
+    borderRadius: 18,
+    padding: 12,
+    marginVertical: 6,
+    maxWidth: '75%',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  messageTextMineMsg: {
+    color: 'white',
+    fontSize: 16,
+  },
+  messageTextOtherMsg: {
+    color: 'black',
+    fontSize: 16,
+  },
+  inputContainerMsg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    backgroundColor: 'white',
+  },
+  textInputMsg: {
+    flex: 1,
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    backgroundColor: 'white',
+  },
+  sendButtonMsg: {
+    marginLeft: 10,
+    backgroundColor: '#228B22',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  sendButtonTextMsg: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  loadingContainerMsg: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    paddingHorizontal: 0,
+  },
+
+  backButtonContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+
+  backButtonText: {
+    fontSize: 30,
+    color: 'green',      // green arrow
+    fontWeight: 'bold',
+  },
+
+  headerTitleWithMargin: {
+    marginLeft: 10,
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#000',       // or your preferred text color
+  },
+
+  // Make sure you have headerTitleMsg somewhere or add like this:
+  headerTitleMsg: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#000',
+  },
 });
 
 export default styles;
