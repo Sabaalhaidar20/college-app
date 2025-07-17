@@ -364,6 +364,28 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
   },
+
+  faqCard: {
+    backgroundColor: "#f7f7f7",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    borderColor: "#ddd",
+    borderWidth: 1,
+  },
+
+  faqQuestion: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 6,
+  },
+
+  faqAnswer: {
+    fontSize: 14,
+    color: "#555",
+    lineHeight: 20,
+  },
 });
 
 export default styles;
