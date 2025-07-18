@@ -8,6 +8,46 @@ from extensions import bcrypt
 routes_bp = Blueprint("routes",__name__)
 
 
+def matchmaking(curr_user, all_users):
+    suggested = []                              #list of suggested users
+
+    for user in all_users:
+        if user["id"] == curr_user["id"]:       #skip current user in list of all users
+
+            continue
+
+
+        common_interests = []                   #keep track of common interests between curr user and each user in database
+
+
+        for interest in curr_user["interests"]:
+
+            if interest in user["interests"]:      #if current user and another user share similar interest
+
+                common_interests.append(interest)   #append to the list of common interests
+
+        count = len(common_interests)               #keep track of the number of similar interests
+
+        if count > 0:                            #if at least one interest in common, add dictionary to list of suggested users
+            suggested.append({"user_id": user["id"], 
+                              "count": count,
+                              "common_interests": common_interests})
+
+    #sort suggested users based on "count" (most common interests)
+
+    #bubble sort to sort by "count" in descending order
+    n = len(suggested)
+    for i in range(n-1):
+        for j in range(n - i - 1):
+            if suggested[j]["count"] < suggested[j+1]["count"]:
+                suggested[j], suggested[j+1] = suggested[j+1], suggested[j]
+    
+    return suggested
+
+
+
+
+
 @routes_bp.route("/hello")
 def hello():
     return jsonify(message="this is a message from backend!")
