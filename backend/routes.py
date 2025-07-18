@@ -11,18 +11,22 @@ routes_bp = Blueprint("routes",__name__)
 def matchmaking(curr_user, all_users):
     suggested = []                              #list of suggested users
 
+    curr_user_interests = curr_user.get("interests", [])    #get current users interests, empty list if DNE
+
     for user in all_users:
         if user["id"] == curr_user["id"]:       #skip current user in list of all users
 
             continue
 
+        
+        user_interests = user.get("interests", [])  #if a user doesnt have interests field, create empty list
 
         common_interests = []                   #keep track of common interests between curr user and each user in database
 
 
-        for interest in curr_user["interests"]:
+        for interest in curr_user_interests:
 
-            if interest in user["interests"]:      #if current user and another user share similar interest
+            if interest in user_interests:      #if current user and another user share similar interest
 
                 common_interests.append(interest)   #append to the list of common interests
 
