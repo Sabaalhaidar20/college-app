@@ -44,7 +44,47 @@ def matchmaking(curr_user, all_users):
     
     return suggested
 
+#route to get list of potential matches
+@routes_bp.route("/api/profiles/<user_id>/matches", methods = ["GET"])
+def get_matches(user_id):
 
+  #  if "user_id" not in session or session["user_id"] != user_id:       #make sure user is in session
+   #     return jsonify({"error":"Unauthorized"}), 400
+
+    try:
+        users_ref = db.collection("users").stream()                     #get all "user" documents           
+
+        all_users=[]
+
+        found = False
+
+        for doc in users_ref:
+
+            user = doc.to_dict()                              #convert each user doc to python dictionary
+            user["id"] = doc.id
+
+            if user_id == user["id"]:                       #if we find the user_id that was passed, we found the current user
+
+                curr_user = user
+
+                found = True
+
+            else:
+                all_users.append(user)              #if not current user, add to list of all users
+
+            
+
+        if not found:
+            return jsonify({"error": "user not found"}), 404  
+         
+        suggested = matchmaking(curr_user, all_users)   #call matchmaking algo
+
+        return jsonify(suggested)                       #return list of suggested users
+
+            
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
