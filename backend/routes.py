@@ -52,8 +52,8 @@ def matchmaking(curr_user, all_users):
 @routes_bp.route("/api/profiles/<user_id>/matches", methods = ["GET"])
 def get_matches(user_id):
 
-  #  if "user_id" not in session or session["user_id"] != user_id:       #make sure user is in session
-   #     return jsonify({"error":"Unauthorized"}), 400
+    if "user_id" not in session or session["user_id"] != user_id:       #make sure user is in session
+        return jsonify({"error":"Unauthorized"}), 400
 
     try:
         users_ref = db.collection("users").stream()                     #get all "user" documents           
