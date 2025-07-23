@@ -3,12 +3,13 @@ from flask_cors import CORS
 from extensions import bcrypt
 from firebase_config import db
 from routes import routes_bp
+import os
 #from dotenv import load_dotenv
 
 #load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "the_secret_key"           #UPDATE SECRET KEY
+app.secret_key = os.environ.get("SECRET_KEY", "secondary454")       #UPDATE SECRET KEY
 
 bcrypt.init_app(app)
 
