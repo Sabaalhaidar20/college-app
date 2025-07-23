@@ -42,5 +42,5 @@ app-example
 #backend
 venv/
 __pycache__/
-#firebase-adminkey.json
+firebase-adminkey.json
 *.pyc 
